@@ -1,0 +1,48 @@
+
+name: Daily Development Log
+
+on:
+  schedule:
+    # Every day at 18:30 UTC = midnight in India
+    - cron: "30 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-log:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Add today's log entry
+        run: |
+          TODAY=$(date -u +%F)
+          touch DAILY-DEV-LOG.md
+
+          if ! grep -qxF "$TODAY" DAILY-DEV-LOG.md; then
+            echo "$TODAY - Daily development log updated." \
+              >> DAILY-DEV-LOG.md
+          fi
+
+      - name: Commit and push
+        env:
+          AUTHOR_EMAIL: ${{ secrets.GITHUB_COMMIT_EMAIL }}
+          AUTHOR_NAME: ${{ github.repository_owner }}
+        run: |
+          git config user.name "$AUTHOR_NAME"
+          git config user.email "$AUTHOR_EMAIL"
+
+          git add DAILY-DEV-LOG.md
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: update daily development log"
+          git push
+          
