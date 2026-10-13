@@ -30,7 +30,7 @@ jobs:
 
       - name: Commit and push
         env:
-          AUTHOR_EMAIL: ${{ secrets.GITHUB_COMMIT_EMAIL }}
+          AUTHOR_EMAIL: ${{ secrets.COMMIT_EMAIL }}
           AUTHOR_NAME: ${{ github.repository_owner }}
         run: |
           git config user.name "$AUTHOR_NAME"
